@@ -29,6 +29,14 @@
          API 26+, same as any app distributed outside the Play Store. -->
     <uses-permission android:name="android.permission.REQUEST_INSTALL_PACKAGES" />
 
+    <!-- Media hub: the phone's music/videos, and playing them in the background. -->
+    <uses-permission android:name="android.permission.READ_MEDIA_AUDIO" />
+    <uses-permission android:name="android.permission.READ_MEDIA_VIDEO" />
+    <uses-permission
+        android:name="android.permission.READ_EXTERNAL_STORAGE"
+        android:maxSdkVersion="32" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_MEDIA_PLAYBACK" />
+
     <!-- Package visibility (API 30+): needed to launch Android Auto for the
          one-click head-unit-server start. -->
     <queries>
@@ -89,6 +97,40 @@
             android:exported="false"
             android:foregroundServiceType="connectedDevice|microphone|location" />
 
+
+        <!-- Media hub (Fermata-style): phone settings, phone preview, and the
+             media service Android Auto and the car panel both play through. -->
+        <activity
+            android:name=".media.MediaHubActivity"
+            android:label="AA Media"
+            android:icon="@mipmap/ic_launcher"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+
+        <activity
+            android:name=".media.CarMediaPreviewActivity"
+            android:label="AA Media preview"
+            android:screenOrientation="sensorLandscape"
+            android:configChanges="orientation|screenSize|screenLayout|keyboardHidden"
+            android:exported="false" />
+
+        <service
+            android:name=".media.AaMediaService"
+            android:exported="true"
+            android:foregroundServiceType="mediaPlayback">
+            <intent-filter>
+                <action android:name="androidx.media3.session.MediaLibraryService" />
+                <action android:name="android.media.browse.MediaBrowserService" />
+            </intent-filter>
+        </service>
+
+        <meta-data
+            android:name="com.google.android.gms.car.application"
+            android:resource="@xml/automotive_app_desc" />
 
         <provider
             android:name="androidx.core.content.FileProvider"

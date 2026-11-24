@@ -500,8 +500,28 @@ class AaSessionProbe(
                 runCatching { channel.sendChannelSpecific(AaServiceDiscovery.CHANNEL_SENSOR, AaFraming.MSG_SENSOR_EVENT, batch) }
                     .onFailure { logger.log("SENSOR_EVENT send failed: $it") }
             }
+            // Driving status (sensor 13) was advertised but never sent. Send
+            // the real state from GPS speed so Android Auto locks typing and
+            // video while moving, like a factory head unit does. 0 =
+            // unrestricted (parked), 31 = every restriction (moving / no fix).
+            var drivingSensorStarted = false
+            var drivingSent: Int? = null
+            var lastDrivingCheckAt = 0L
+            fun sendDrivingIfChanged() {
+                val status = if (dev.caraalink.media.DrivingState.isParked()) 0 else 31
+                if (status == drivingSent) return
+                drivingSent = status
+                logger.log("TX SENSOR_EVENT driving_status=$status")
+                val batch = AaProtobuf.Writer().message(13, AaProtobuf.Writer().int(1, status).build()).build() // driving_status
+                runCatching { channel.sendChannelSpecific(AaServiceDiscovery.CHANNEL_SENSOR, AaFraming.MSG_SENSOR_EVENT, batch) }
+                    .onFailure { logger.log("SENSOR_EVENT driving send failed: $it") }
+            }
             while ((running.get() || draining) && (everEstablished || index < config.maxMessages)) {
                 index++
+                if (drivingSensorStarted && System.currentTimeMillis() - lastDrivingCheckAt > 1_000) {
+                    lastDrivingCheckAt = System.currentTimeMillis()
+                    sendDrivingIfChanged()
+                }
                 if (System.currentTimeMillis() - lastPingSentAt > 5_000) {
                     lastPingSentAt = System.currentTimeMillis()
                     val ping = AaProtobuf.Writer().varint(1, lastPingSentAt * 1000).int(2, 0).build()
@@ -704,6 +724,11 @@ class AaSessionProbe(
                         if (sensorType == SENSOR_NIGHT_MODE) {
                             nightSensorStarted = true
                             sendNightIfChanged()
+                        }
+                        if (sensorType == AaServiceDiscovery.SENSOR_DRIVING_STATUS_DATA.toLong()) {
+                            dev.caraalink.media.DrivingState.start(context)
+                            drivingSensorStarted = true
+                            sendDrivingIfChanged()
                         }
                     }
                     continue

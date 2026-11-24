@@ -28,8 +28,8 @@ import java.net.URL
  */
 object UpdateChecker {
 
-    private const val OWNER = "alimorgaan"
-    private const val REPO = "AA-Bridge"
+    private const val OWNER = "Messodz"
+    private const val REPO = "AA-Bridge-Media"
     private const val CHANNEL_ID = "app_updates"
     private const val NOTIFICATION_ID = 4
 

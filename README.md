@@ -2,6 +2,22 @@
   <img src="docs/logo.svg" alt="AA Bridge" width="480" />
 </p>
 
+> **AA Bridge Media** — a fork of AA Bridge with a built-in, Fermata-style media hub.
+> Target car: Livan X3 Pro (CarbitLink head unit, same family as the tested Geely Emgrand).
+>
+> - **♪ Media button** on the car screen, in the corner beside Android Auto. It opens a car-sized panel
+>   with **Music** (all songs and folders from the phone), **Radio** (your own stream links), **Videos**
+>   (the phone's videos) and **Web** (a browser with YouTube/Google shortcuts). Android Auto keeps running
+>   underneath; "◀ Android Auto" goes straight back.
+> - **Android Auto media app**: music folders and radio also show in Android Auto's own media list
+>   (Android Auto → Developer settings → *Unknown sources* must be on).
+> - **Parked only for video and web**: the phone's GPS speed decides. Above ~10 km/h, or with no recent
+>   GPS fix, video pauses and the browser is covered. The same signal is now sent to Android Auto as the
+>   driving-status sensor, so Android Auto applies its own driving restrictions too.
+> - A second launcher icon, **AA Media**, on the phone: grant access, manage radio stations, and preview the
+>   car panel on the phone.
+> - New code lives in `app/src/main/kotlin/dev/caraalink/media/`. Builds on GitHub Actions (see below).
+
 AA Bridge brings Android Auto to cars whose screen only supports CarbitLink (also called EasyConnection) or QDLink phone mirroring.
 
 The app runs on your phone. It starts a local Android Auto session and sends it to the car, over a USB cable or wirelessly over Wi-Fi Direct. Touches on the car screen go back to Android Auto.

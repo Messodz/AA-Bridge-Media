@@ -167,7 +167,47 @@ class AaCarPresentation(
         root.addView(area, FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT))
         root.addView(starting, FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT))
         dev.caraalink.diagnostics.PerfStats.attachHud(context, root)
+        addMediaHub(root)
         setContentView(root)
+    }
+
+    /**
+     * The ♪ Media button sits in the corner (in FIT mode that's the black
+     * pillarbox beside Android Auto) and opens the built-in media hub on top.
+     * Android Auto keeps running underneath, so closing the hub is instant.
+     */
+    private fun addMediaHub(root: FrameLayout) {
+        var panel: dev.caraalink.media.CarMediaPanel? = null
+        lateinit var openButton: TextView
+        fun close() {
+            panel?.let { root.removeView(it) }
+            panel = null
+            openButton.visibility = View.VISIBLE
+        }
+        openButton = TextView(context).apply {
+            text = "\u266B Media"
+            textSize = 18f
+            setTextColor(Color.WHITE)
+            gravity = Gravity.CENTER
+            setPadding(dp(16), dp(10), dp(16), dp(10))
+            background = android.graphics.drawable.GradientDrawable().apply {
+                cornerRadius = dp(22).toFloat()
+                setColor(0xB31E88E5.toInt())
+            }
+            setOnClickListener {
+                if (panel == null) {
+                    val p = dev.caraalink.media.CarMediaPanel(context) { close() }
+                    panel = p
+                    root.addView(p, FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT))
+                    visibility = View.GONE
+                }
+            }
+        }
+        root.addView(
+            openButton,
+            FrameLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT, Gravity.TOP or Gravity.START)
+                .apply { setMargins(dp(12), dp(12), dp(12), dp(12)) },
+        )
     }
 
     private fun dp(v: Int) = TypedValue.applyDimension(
