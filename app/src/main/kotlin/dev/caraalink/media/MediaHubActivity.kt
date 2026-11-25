@@ -79,12 +79,6 @@ class MediaHubActivity : ComponentActivity() {
         refreshRadios()
     }
 
-    override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
-        MediaCatalog.invalidate()
-        refreshPerms()
-    }
-
     private fun askPermissions() {
         val perms = buildList {
             add(MediaCatalog.audioPermission())
